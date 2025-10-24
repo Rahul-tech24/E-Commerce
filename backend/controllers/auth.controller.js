@@ -30,7 +30,7 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 const signup = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, password, role } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
@@ -47,7 +47,16 @@ const signup = async (req, res) => {
                 return res.status(400).json({ message: "Email is already in use" });
             }
         }
-        const newUser = await User.create({ name, email, password });
+        
+        // Validate role if provided
+        if (role && !['customer', 'admin'].includes(role)) {
+            return res.status(400).json({ message: "Invalid role. Must be 'customer' or 'admin'" });
+        }
+
+        const userData = { name, email, password };
+        if (role) userData.role = role;
+        
+        const newUser = await User.create(userData);
 
         const { accessToken, refreshToken } = generateTokens(newUser._id);
 
@@ -118,4 +127,51 @@ const logout = async (req, res) => {
     }
 };
 
-export { signup, login, logout };
+
+
+const refreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Refresh token missing" });
+        }
+
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const storedToken = await redisClient.get(`refreshToken:${decoded.userId}`);
+
+        if (storedToken !== refreshToken) {
+            return res.status(403).json({ message: "Invalid refresh token" });
+        }
+        const userId = decoded.userId;
+
+        const newAccessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000 // 15 minutes
+        });
+
+        res.status(200).json({ message: "Token refreshed successfully" });
+    } catch (error) {
+        console.error("Refresh token error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+const getProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error("Get profile error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+export { signup, login, logout, refreshToken, getProfile };
