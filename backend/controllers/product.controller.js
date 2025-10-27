@@ -5,7 +5,7 @@ import cloudinary from "../lib/cloudinary.js";
 const getAllProducts =  async (req, res) => {
     try {
          const products = await Product.find();
-         res.status(200).json(products);
+         res.status(200).json({ products });
     } catch (error) {
          res.status(500).json({ message: "Error retrieving products" });
     }
@@ -19,7 +19,7 @@ const getAllProducts =  async (req, res) => {
           }
           featuredProducts = await Product.find({ isFeatured: true }).lean();
           if (!featuredProducts || featuredProducts.length === 0) {
-              return res.status(404).json({ message: "No featured products found" });
+              return res.status(200).json([]);
           }
           await redisClient.set('featuredProducts', JSON.stringify(featuredProducts), 'EX', 7 * 24 * 60 * 60);
           res.status(200).json(featuredProducts);
@@ -72,7 +72,6 @@ const updateProduct = async (req, res) => {
     }, { new: true });
 
     res.status(200).json({ message: `Product with ID ${id} updated successfully`, product });
-    res.status(200).json({ message: `Product with ID ${id} updated successfully`, product: { name, price, description, image } });
 };
 const deleteProduct = async (req, res) => {
     const { id } = req.params;
@@ -106,9 +105,9 @@ const getProductsByCategory = async (req, res) => {
         const { id } = req.params;
         const products = await Product.find({ category: id }).lean();
         if (!products || products.length === 0) {
-            return res.status(404).json({ message: "No products found in this category" });
+            return res.status(200).json([]);
         }
-        res.status(200).json(products);
+        res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ message: "Error retrieving products by category" });
     }

@@ -161,8 +161,8 @@ const refreshToken = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-        const userId = req.userId;
-        const user = await User.findById(userId).select('-password');
+        // req.user is set by the protectRoute middleware
+        const user = req.user;
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
