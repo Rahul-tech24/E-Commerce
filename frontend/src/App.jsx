@@ -8,6 +8,9 @@ import { useUserStore } from './store/useUserStore.js'
 import { useEffect } from 'react'
 import LoadingSpinner from './components/LoadingSpinner.jsx'
 import AdminPage from './pages/AdminPage.jsx'
+import CategoryPage from './pages/CategoryPage.jsx'
+import CartPage from './pages/CartPage.jsx'
+
 
 
 function App() {
@@ -39,6 +42,9 @@ function App() {
       <Route path="/signup" element={!user ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
           <Route path="/secret-dashboard" element={user?.role === "admin" ? <AdminPage /> : <Navigate to="/" />} />
+          <Route path="/category/:category" element={<CategoryPage />} />
+          <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />
+
         </Routes>
         
         </div>
@@ -48,4 +54,4 @@ function App() {
    
   )
 }
-export default App
+export default App;

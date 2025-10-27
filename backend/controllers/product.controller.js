@@ -102,11 +102,8 @@ const getRecommendedProducts = async (req, res) => {
 
 const getProductsByCategory = async (req, res) => {
     try {
-        const { id } = req.params;
-        const products = await Product.find({ category: id }).lean();
-        if (!products || products.length === 0) {
-            return res.status(200).json([]);
-        }
+        const { category } = req.params;
+        const products = await Product.find({ category: category.toLowerCase() }).lean();
         res.status(200).json({ products });
     } catch (error) {
         res.status(500).json({ message: "Error retrieving products by category" });

@@ -8,6 +8,7 @@ export const useProductStore = create((set) => ({
 	error: null,
 
 	setProducts: (products) => set({ products }),
+	
 	createProduct: async (productData) => {
 		set({ loading: true });
 		try {

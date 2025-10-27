@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import {motion } from "framer-motion";
 import { Trash, Star } from "lucide-react";
 import { useProductStore } from "../store/useProductStore";
 
@@ -71,10 +71,14 @@ const ProductsList = () => {
 							<td className='px-6 py-4'>
 								<div className='flex items-center'>
 									<div className='shrink-0 h-10 w-10'>
-										<img
+											<img
 											className='h-10 w-10 rounded-full object-cover'
 											src={product.image}
 											alt={product.name}
+											style={{ display: 'block' }}
+											onError={(e) => {
+												e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+											}}
 										/>
 									</div>
 									<div className='ml-4 min-w-0 flex-1'>
@@ -124,6 +128,10 @@ const ProductsList = () => {
 								className='h-12 w-12 rounded-lg object-cover'
 								src={product.image}
 								alt={product.name}
+								style={{ display: 'block' }}
+								onError={(e) => {
+									e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTAiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+								}}
 							/>
 							<div className='flex-1 min-w-0'>
 								<h3 className='text-white font-medium truncate'>{product.name}</h3>

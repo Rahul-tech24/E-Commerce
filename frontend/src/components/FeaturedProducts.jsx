@@ -47,9 +47,12 @@ const FeaturedProducts = ({ featuredProducts }) => {
 									<div className='bg-white bg-opacity-10 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden h-full transition-all duration-300 hover:shadow-xl border border-emerald-500/30'>
 										<div className='overflow-hidden'>
 											<img
-												src={product.image}
+												src={product.image || '/shoes.jpg'}
 												alt={product.name}
 												className='w-full h-48 object-cover transition-transform duration-300 ease-in-out hover:scale-110'
+												onError={(e) => {
+													e.target.src = '/shoes.jpg';
+												}}
 											/>
 										</div>
 										<div className='p-4'>
