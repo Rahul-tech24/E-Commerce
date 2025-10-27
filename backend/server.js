@@ -23,7 +23,7 @@ import analyticsRoutes from './routes/analytics.route.js';
 
 // CORS configuration
 app.use(cors({
-  origin: "http://localhost:5173", // Vite dev server
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
   credentials: true // Allow cookies
 }));
 

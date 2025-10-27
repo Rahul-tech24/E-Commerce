@@ -2,13 +2,18 @@ import { Link } from "react-router-dom";
 import { useCartStore } from "../store/useCartStore";
 import { motion } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
+import { useEffect } from "react";
 import CartItem from "../components/CartItem";
 import PeopleAlsoBought from "../components/PeopleAlsoBought";
 import OrderSummary from "../components/OrderSummary";
 import GiftCouponCard from "../components/GiftCouponCard";
 
 const CartPage = () => {
-	const { cart } = useCartStore();
+	const { cart, getCartItems } = useCartStore();
+
+	useEffect(() => {
+		getCartItems();
+	}, [getCartItems]);
 
 	return (
 		<div className='py-8 md:py-16'>

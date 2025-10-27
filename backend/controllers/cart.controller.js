@@ -2,11 +2,16 @@ import Product from "../models/product.model.js";
 
 export const getCartProducts = async (req, res) => {
 	try {
-		const products = await Product.find({ _id: { $in: req.user.cartItems } });
+		// Handle both old format (_id) and new format (productId)
+		const productIds = req.user.cartItems.map(item => item.productId || item._id);
+		const products = await Product.find({ _id: { $in: productIds } });
 
 		// add quantity for each product
 		const cartItems = products.map((product) => {
-			const item = req.user.cartItems.find((cartItem) => cartItem.id === product.id);
+			const item = req.user.cartItems.find((cartItem) => {
+				const itemId = cartItem.productId || cartItem._id;
+				return itemId && itemId.toString() === product._id.toString();
+			});
 			return { ...product.toJSON(), quantity: item.quantity };
 		});
 
@@ -22,17 +27,26 @@ export const addToCart = async (req, res) => {
 		const { productId } = req.body;
 		const user = req.user;
 
-		const existingItem = user.cartItems.find((item) => item.id === productId);
+		if (!productId) {
+			return res.status(400).json({ message: "Product ID is required" });
+		}
+
+		// Handle both old format (_id) and new format (productId)
+		const existingItem = user.cartItems.find((item) => {
+			const itemId = item.productId || item._id;
+			return itemId && itemId.toString() === productId;
+		});
+		
 		if (existingItem) {
 			existingItem.quantity += 1;
 		} else {
-			user.cartItems.push(productId);
+			user.cartItems.push({ productId, quantity: 1 });
 		}
 
 		await user.save();
 		res.json(user.cartItems);
 	} catch (error) {
-		console.log("Error in addToCart controller", error.message);
+		console.log("Error in addToCart controller:", error);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
@@ -44,7 +58,10 @@ export const removeAllFromCart = async (req, res) => {
 		if (!productId) {
 			user.cartItems = [];
 		} else {
-			user.cartItems = user.cartItems.filter((item) => item.id !== productId);
+			user.cartItems = user.cartItems.filter((item) => {
+				const itemId = item.productId || item._id;
+				return itemId && itemId.toString() !== productId;
+			});
 		}
 		await user.save();
 		res.json(user.cartItems);
@@ -58,11 +75,18 @@ export const updateQuantity = async (req, res) => {
 		const { id: productId } = req.params;
 		const { quantity } = req.body;
 		const user = req.user;
-		const existingItem = user.cartItems.find((item) => item.id === productId);
+		
+		const existingItem = user.cartItems.find((item) => {
+			const itemId = item.productId || item._id;
+			return itemId && itemId.toString() === productId;
+		});
 
 		if (existingItem) {
 			if (quantity === 0) {
-				user.cartItems = user.cartItems.filter((item) => item.id !== productId);
+				user.cartItems = user.cartItems.filter((item) => {
+					const itemId = item.productId || item._id;
+					return itemId && itemId.toString() !== productId;
+				});
 				await user.save();
 				return res.json(user.cartItems);
 			}

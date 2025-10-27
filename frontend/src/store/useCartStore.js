@@ -14,7 +14,12 @@ export const useCartStore = create((set, get) => ({
 			const response = await axios.get("/coupons");
 			set({ coupon: response.data });
 		} catch (error) {
-			console.error("Error fetching coupon:", error);
+			// Silently handle coupon not found - don't show errors to user
+			if (error.response?.status === 404) {
+				set({ coupon: null });
+			} else {
+				console.error("Error fetching coupon:", error);
+			}
 		}
 	},
 	applyCoupon: async (code) => {
