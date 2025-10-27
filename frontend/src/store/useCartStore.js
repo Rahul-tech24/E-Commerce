@@ -22,6 +22,7 @@ export const useCartStore = create((set, get) => ({
 			}
 		}
 	},
+	
 	applyCoupon: async (code) => {
 		try {
 			const response = await axios.post("/coupons/validate", { code });

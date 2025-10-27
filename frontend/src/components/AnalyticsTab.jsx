@@ -9,10 +9,11 @@ const AnalyticsTab = () => {
 		users: 0,
 		products: 0,
 		totalSales: 0,
-		totalRevenue: 0,
+		totalRevenue: 0, 
 	});
 	const [isLoading, setIsLoading] = useState(true);
 	const [dailySalesData, setDailySalesData] = useState([]);
+	const [error, setError] = useState(null);
 
 	useEffect(() => {
 		const fetchAnalyticsData = async () => {
@@ -22,6 +23,7 @@ const AnalyticsTab = () => {
 				setDailySalesData(response.data.dailySalesData);
 			} catch (error) {
 				console.error("Error fetching analytics data:", error);
+				setError("Failed to load analytics data");
 			} finally {
 				setIsLoading(false);
 			}
@@ -31,7 +33,19 @@ const AnalyticsTab = () => {
 	}, []);
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		return (
+			<div className="flex items-center justify-center h-96">
+				<div className="text-white">Loading analytics...</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="flex items-center justify-center h-96">
+				<div className="text-red-400">{error}</div>
+			</div>
+		);
 	}
 
 	return (
@@ -68,10 +82,11 @@ const AnalyticsTab = () => {
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5, delay: 0.25 }}
 			>
+				<h2 className='text-xl font-semibold text-white mb-4'>Sales Overview (Last 7 Days)</h2>
 				<ResponsiveContainer width='100%' height={400}>
 					<LineChart data={dailySalesData}>
 						<CartesianGrid strokeDasharray='3 3' />
-						<XAxis dataKey='name' stroke='#D1D5DB' />
+						<XAxis dataKey='date' stroke='#D1D5DB' />
 						<YAxis yAxisId='left' stroke='#D1D5DB' />
 						<YAxis yAxisId='right' orientation='right' stroke='#D1D5DB' />
 						<Tooltip />
@@ -90,7 +105,7 @@ const AnalyticsTab = () => {
 							dataKey='revenue'
 							stroke='#3B82F6'
 							activeDot={{ r: 8 }}
-							name='Revenue'
+							name='Revenue ($)'
 						/>
 					</LineChart>
 				</ResponsiveContainer>
@@ -112,8 +127,11 @@ const AnalyticsCard = ({ title, value, icon: Icon, color }) => (
 				<p className='text-emerald-300 text-sm mb-1 font-semibold'>{title}</p>
 				<h3 className='text-white text-3xl font-bold'>{value}</h3>
 			</div>
+			<div className='z-10'>
+				<Icon className='h-8 w-8 text-emerald-300' />
+			</div>
 		</div>
-		<div className='absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-900 opacity-30' />
+		<div className='absolute inset-0 bg-linear-to-br from-emerald-600 to-emerald-900 opacity-30' />
 		<div className='absolute -bottom-4 -right-4 text-emerald-800 opacity-50'>
 			<Icon className='h-32 w-32' />
 		</div>
