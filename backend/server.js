@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import connectDB from './lib/db.js';
 import path from "path";
+import fs from "fs";
 
 dotenv.config();
 
@@ -34,14 +35,33 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
+// Debug route for images
+app.get('/debug-images', (req, res) => {
+	const publicPath = path.join(__dirname, "/frontend/public");
+	try {
+		const files = fs.readdirSync(publicPath);
+		res.json({ 
+			publicPath, 
+			files,
+			__dirname,
+			nodeEnv: process.env.NODE_ENV 
+		});
+	} catch (error) {
+		res.json({ error: error.message, publicPath });
+	}
+});
+
 
 
 if (process.env.NODE_ENV === "production") {
-	// Serve static files from the React build
-	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+	// Serve static files from public folder for images with explicit paths
+	app.use('/images', express.static(path.join(__dirname, "frontend/public")));
 	
-	// Serve static files from public folder (images, etc.)
-	app.use(express.static(path.join(__dirname, "/frontend/public")));
+	// Serve images directly from root as well
+	app.use(express.static(path.join(__dirname, "frontend/public")));
+	
+	// Serve static files from the React build
+	app.use(express.static(path.join(__dirname, "frontend/dist")));
 
 	// Handle React routing, return all requests to React app
 	app.use((req, res, next) => {
