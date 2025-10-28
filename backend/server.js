@@ -30,16 +30,20 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-// ✅ Serve public images
-app.use("/assets", express.static(path.join(__dirname, "../frontend/public")));
+// ✅ Serve public images directly from root
+app.use(express.static(path.join(__dirname, "frontend/public")));
 
 // ✅ Production setup
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/dist");
+  const frontendPath = path.join(__dirname, "frontend/dist");
   app.use(express.static(frontendPath));
 
   // ✅ FIXED HERE — Express 5 compatible wildcard route
-  app.get("/*", (req, res) => {
+  app.use((req, res, next) => {
+    // Skip API routes and static files
+    if (req.path.startsWith('/api/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      return next();
+    }
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
