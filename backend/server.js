@@ -61,10 +61,7 @@ app.get('/debug-files', (req, res) => {
 
 // ✅ Production setup
 if (process.env.NODE_ENV === "production") {
-  // Serve static images from public folder
-  app.use(express.static(path.join(__dirname, "frontend/public")));
-  
-  // Serve React app static files
+  // Serve React app static files (includes images copied from public folder)
   const frontendPath = path.join(__dirname, "frontend/dist");
   app.use(express.static(frontendPath));
 
