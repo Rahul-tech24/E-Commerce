@@ -30,44 +30,16 @@ app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
-// Debug route to check file structure
-app.get('/debug-files', (req, res) => {
-  import('fs').then(fs => {
-    const publicPath = path.join(__dirname, "frontend/public");
-    const distPath = path.join(__dirname, "frontend/dist");
-    
-    try {
-      const publicFiles = fs.readdirSync(publicPath);
-      let distFiles = [];
-      try {
-        distFiles = fs.readdirSync(distPath);
-      } catch (e) {
-        distFiles = ['dist folder not found'];
-      }
-      
-      res.json({
-        __dirname,
-        NODE_ENV: process.env.NODE_ENV,
-        publicPath,
-        distPath,
-        publicFiles,
-        distFiles
-      });
-    } catch (error) {
-      res.json({ error: error.message, __dirname });
-    }
-  });
-});
-
-// ✅ Production setup
 if (process.env.NODE_ENV === "production") {
-  // Serve React app static files (includes images copied from public folder)
+  // Serve static files from public folder for images
+  app.use(express.static(path.join(__dirname, "frontend/public")));
+  
+  // Serve React app static files
   const frontendPath = path.join(__dirname, "frontend/dist");
   app.use(express.static(frontendPath));
 
   // Handle React routing - catch-all for non-API, non-static requests
   app.use((req, res, next) => {
-    // Skip API routes and static files
     if (req.path.startsWith('/api/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
       return next();
     }
