@@ -23,6 +23,7 @@ import analyticsRoutes from './routes/analytics.route.js';
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+app.use(express.static());
 
 
 
@@ -32,6 +33,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+
 
 
 if (process.env.NODE_ENV === "production") {
