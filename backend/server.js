@@ -35,19 +35,24 @@ app.use('/api/analytics', analyticsRoutes);
 
 
 if (process.env.NODE_ENV === "production") {
+	// Serve static files from the React build
 	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+	
+	// Serve static files from public folder (images, etc.)
+	app.use(express.static(path.join(__dirname, "/frontend/public")));
 
 	// Handle React routing, return all requests to React app
 	app.use((req, res, next) => {
-		// Skip API routes
-		if (req.path.startsWith('/api/')) {
+		// Skip API routes and static files
+		if (req.path.startsWith('/api/') || req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
 			return next();
 		}
 		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 	});
+} else {
+	// In development, serve public folder for images
+	app.use(express.static(path.join(__dirname, "/frontend/public")));
 }
-
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
